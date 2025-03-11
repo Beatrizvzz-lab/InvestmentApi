@@ -7,16 +7,25 @@ const prisma = new PrismaClient();
 
 export class InvestimentsModel {
     // Método para buscar todos os investimentos
-    static async getAllInvestiments() {
-        const investiments = await prisma.investimento.findMany();
+    static async getAllInvestiments(userId: number) {
+        const investiments = await prisma.investimento.findMany({
+            where: { userId }, // Filtra por userId
+            select: {
+                id: true,
+                name: true,
+                amount: true,
+                interestRate: true,
+                investmentPeriod: true,
+                createdAt: true,
+                userId:true,
+            },
+        });
         console.log(investiments);
 
         // Função para calcular rendimento futuro (juros compostos)
         const calcularRendimentoFuturo = (amount: number, rate: number, years: number): number => {
             return amount * Math.pow(1 + rate / 100, years);
         };
-        
-        
 
         // Adiciona o cálculo de rendimento futuro a cada investimento
         return investiments.map((investimento: Investimento) => {
@@ -42,14 +51,31 @@ export class InvestimentsModel {
         name: string,
         amount: number,
         interestRate: number,
-        investmentPeriod: number
+        investmentPeriod: number,
+        userId: number,
     ): Promise<Investimento> {
         if (interestRate == null || investmentPeriod == null) {
             throw new Error("interestRate e investmentPeriod são obrigatórios.");
         }
 
+        const userExists = await prisma.user.findUnique({
+            where: {
+                id: userId, // Verifica se o userId é válido
+            },
+        });
+
+        if (!userExists) {
+            throw new Error("Usuário não encontrado.");
+        }
+
         return await prisma.investimento.create({
-            data: { name, amount, interestRate, investmentPeriod },
+            data: {
+                name,
+                amount,
+                interestRate,
+                investmentPeriod,
+                userId, // Conecta o investimento ao usuário
+            },
         });
     }
 
@@ -59,11 +85,11 @@ export class InvestimentsModel {
         name: string,
         amount: number,
         interestRate: number,
-        investmentPeriod: number // Adicione este parâmetro
+        investmentPeriod: number,
     ): Promise<Investimento> {
         return await prisma.investimento.update({
             where: { id },
-            data: { name, amount, interestRate, investmentPeriod }, // Inclua investmentPeriod
+            data: { name, amount, interestRate, investmentPeriod },
         });
     }
 

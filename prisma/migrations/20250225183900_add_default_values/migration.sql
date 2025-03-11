@@ -15,3 +15,4 @@ ALTER TABLE "Investimento"
     ALTER COLUMN "interestRate" SET DEFAULT 0,
     ALTER COLUMN "investmentPeriod" SET NOT NULL,
     ALTER COLUMN "investmentPeriod" SET DEFAULT 0;
+    ALTER TABLE "Investimento" ADD COLUMN "userId" INTEGER NOT NULL DEFAULT 1;

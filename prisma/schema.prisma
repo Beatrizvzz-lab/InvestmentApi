@@ -20,6 +20,8 @@ model Investimento {
   amount       Float
   interestRate Float 
   investmentPeriod Float 
+  userId          Int      // Relacionamento com a tabela User
+  user            User     @relation(fields: [userId], references: [id]) // Chave estrangeira
   createdAt DateTime @default(now()) // Data de criação do investimento
 }
 
@@ -28,5 +30,7 @@ model User {
   name      String
   email     String   @unique
   password  String
+  investimentos Investimento[]  // Relacionamento com investimentos
   createdAt DateTime @default(now())
+  
 }
